@@ -1,0 +1,19 @@
+<!--
+ This is VEuPathDB's custom fields file. This is where new schema fields
+ should be added. Before adding to this schema, check 'schema.xml' to make
+ sure it doesn't already contain something that can do what you want.
+ 'schema.xml' also contains useful reference documentation.
+-->
+
+<fields>
+  <field name="document-type" type="documentType" required="true" indexed="true" stored="true"/> 
+  <field name="batch-type" type="batchType" required="true" indexed="true" stored="true"/>
+  <field name="batch-timestamp" type="pint" required="true" indexed="true" stored="true"/>
+  <field name="batch-name" type="string" required="true" indexed="true" stored="true"/>
+  <field name="batch-id" type="string" required="true" indexed="true" stored="true"/>
+  <dynamicField name="TEXT__*" type="text_en_splitting" indexed="true" stored="true"/>
+  <dynamicField name="MULTITEXT__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+
+  <!-- Store all fields not explicitly defined as multivalued text fields. -->
+  <dynamicField name="*" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+</fields>

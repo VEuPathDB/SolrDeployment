@@ -1,0 +1,19 @@
+<enumsConfig>
+  <enum name="documentType">
+    <value>Gene</value>
+    <value>Document batch</value>
+    <value>Genomic sequence</value>
+    <value>Pathway</value>
+    <value>Workshop exercise</value>
+    <value>Tutorial</value>
+    <value>organism-gene</value>
+    <value>organism-est</value>
+  </enum>
+  <enum name="batchType">
+    <value>organism</value>
+    <value>pathways</value>
+    <value>compounds</value>
+    <value>jekyll</value>
+    <value>datasetPresenters</value>
+  </enum>
+</enumsConfig>
