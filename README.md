@@ -20,7 +20,7 @@ docker stop $(docker ps -aq)
 ```
 
 ### 4. Import configuration files
-Copy the files from the correct directory in this repo (eg `site_search_config`) into the core's conf directory, which will be located at `.../github_volume_solrdata_v1/_data/data/[core_name]/conf`.
+Copy the files from the correct directory in this repo (eg `site-search-config`) into the core's conf directory, which will be located at `.../github_volume_solrdata_v1/_data/data/[core_name]/conf`.
 
 ### 5. Start the containers again
 ```
