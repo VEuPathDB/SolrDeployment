@@ -1,0 +1,11 @@
+<!--
+ This is VEuPathDB's custom types file. This is where new schema types
+ should be added. Before adding to this schema, check 'schema.xml' to make
+ sure it doesn't already contain something that can do what you want.
+ 'schema.xml' also contains useful reference documentation.
+-->
+
+<types>
+  <fieldType name="documentType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="documentType"/>
+  <fieldType name="batchType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="batchType"/>
+</types>
