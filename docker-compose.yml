@@ -5,7 +5,8 @@ volumes:
 
 services:
   solr:
-    image: veupathdb/solr:configset
+    build:
+      context: .
     volumes:
       - volume_solrdata_v1:/var/solr/
     command: ["solr-precreate", "site_search", "/opt/solr/server/solr/configsets/site-search"]
