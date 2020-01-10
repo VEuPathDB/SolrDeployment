@@ -17,7 +17,7 @@ node ('centos8') {
          }
 
         // build the image
-	sh 'podman build --format=docker -t solr'
+	sh 'podman build --format=docker -t solr .'
 
         // push to dockerhub (for now)
         sh "podman push --creds \"$HUB_LOGIN\" solr docker://docker.io/veupathdb/solr:${tag}"
