@@ -1,0 +1,11 @@
+version: '3.5'
+
+volumes:
+  volume_solrdata_v1:         # Store solr cores' data and configs
+
+services:
+  solr:
+    image: veupathdb/solr:configset
+    volumes:
+      - volume_solrdata_v1:/var/solr/
+    command: ["solr-precreate", "site_search", "/opt/solr/server/solr/configsets/site-search"]
