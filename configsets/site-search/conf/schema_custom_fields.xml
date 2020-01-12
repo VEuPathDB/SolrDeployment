@@ -11,8 +11,8 @@
   <field name="batch-timestamp" type="pint" required="true" indexed="true" stored="true"/>
   <field name="batch-name" type="string" required="true" indexed="true" stored="true"/>
   <field name="batch-id" type="string" required="true" indexed="true" stored="true"/>
-  <dynamicField name="TEXT__*" type="text_en_splitting" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
-  <dynamicField name="MULTITEXT__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  <dynamicField name="ATTR__*" type="text_en_splitting" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  <dynamicField name="TABLE__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
   <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
  
   <!-- Store all fields not explicitly defined as multivalued text fields. -->
