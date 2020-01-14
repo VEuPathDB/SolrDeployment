@@ -1,14 +1,14 @@
 <enumsConfig>
   <enum name="documentType">
     <value>batch-meta</value>
-    <value>organism-sequence</value>
+    <value>document-categories</value>
     <value>pathway</value>
     <value>Workshop exercise</value>
     <value>Tutorial</value>
     <value>organism</value>
-    <value>sequence</value>
-    <value>organism-est</value>
-    <value>organism-gene</value>
+    <value>genomic-sequence</value>
+    <value>est</value>
+    <value>gene</value>
     <value>dataset</value>
     <value>compound</value>
     <value>search</value>
