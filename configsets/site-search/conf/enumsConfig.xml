@@ -20,5 +20,6 @@
     <value>jekyll</value>
     <value>wdkmeta</value>
     <value>dataset</value>
+    <value>document-categories</value>
   </enum>
 </enumsConfig>
