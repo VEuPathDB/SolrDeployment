@@ -1129,7 +1129,7 @@
 
     -->
 
-  <!-- Use 'schema.xml' rather than a managed schema configuration. -->
+  <!-- VEuPathDB: Use 'schema.xml' rather than a managed schema configuration. -->
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
   <!-- Add unknown fields to the schema
@@ -1146,6 +1146,7 @@
 
        See http://wiki.apache.org/solr/GuessingFieldTypes
     -->
+  <!-- VEuPathDB: Not needed because we're not using a managed schema.
   <updateProcessor class="solr.UUIDUpdateProcessorFactory" name="uuid"/>
   <updateProcessor class="solr.RemoveBlankFieldUpdateProcessorFactory" name="remove-blank"/>
   <updateProcessor class="solr.FieldNameMutatingUpdateProcessorFactory" name="field-name-mutating">
@@ -1174,7 +1175,7 @@
         <str name="dest">*_str</str>
         <int name="maxChars">256</int>
       </lst>
-      <!-- Use as default mapping instead of defaultFieldType -->
+      <!- Use as default mapping instead of defaultFieldType ->
       <bool name="default">true</bool>
     </lst>
     <lst name="typeMapping">
@@ -1196,13 +1197,15 @@
     </lst>
   </updateProcessor>
 
-  <!-- The update.autoCreateFields property can be turned to false to disable schemaless mode -->
+  <!- The update.autoCreateFields property can be turned to false to disable schemaless mode ->
+  <!- VEuPathDB: Turned off autoCreateFields ->
   <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:false}"
            processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields">
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>
   </updateRequestProcessorChain>
+  -->
 
   <!-- Deduplication
 

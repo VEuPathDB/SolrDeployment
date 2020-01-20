@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!-- this is a first attempted at a radically pruned schema.xml.
-
-so far it works for loading data, but indexing/querying isn't right yet (no results)
-
+<!-- This is the VEuPathDB site search schema. See 'managed-schema'
+  for preconfigured examples of useful fields and types as well as
+  helpful schema documentation.
 -->
 
 <schema name="default-config" version="1.6">
-
     <field name="_version_" type="plong" indexed="false" stored="false"/>
-
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
     <!-- If you don't use child/nested documents, then you should remove the next two fields:  -->
@@ -41,18 +38,20 @@ so far it works for loading data, but indexing/querying isn't right yet (no resu
       </analyzer>
     </fieldType>
 
-    <!-- added these because solr threw errors without them.  -->
-   <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
-    <fieldType name="pdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
-    <fieldType name="plongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
-    <fieldType name="pdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
-
-
-
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true" />
     <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
     <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+
+    <!-- A text field with defaults appropriate for English, plus
+         aggressive word-splitting and autophrase features enabled.
+         This field is just like text_en, except it adds
+         WordDelimiterGraphFilter to enable splitting and matching of
+         words on case-change, alpha numeric boundaries, and
+         non-alphanumeric chars.  This means certain compound word
+         cases will work, for example query "wi fi" will match
+         document "WiFi" or "wi-fi".
+    -->
     <fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
       <analyzer type="index">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -85,14 +84,17 @@ so far it works for loading data, but indexing/querying isn't right yet (no resu
       </analyzer>
     </fieldType>
 
+    <!-- VEuPathDB's custom fields and types. -->
+    <fieldType name="documentType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="documentType"/>
+    <fieldType name="batchType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="batchType"/>
 
-    <!-- Include VEuPathDB's custom fields and types. -->
-    <xi:include href="schema_custom_types.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
-      <xi:fallback></xi:fallback>
-    </xi:include>
+    <field name="document-type" type="documentType" required="true" indexed="true" stored="true"/> 
+    <field name="batch-type" type="batchType" required="true" indexed="true" stored="true"/>
+    <field name="batch-timestamp" type="pint" required="true" indexed="true" stored="true"/>
+    <field name="batch-name" type="string" required="true" indexed="true" stored="true"/>
+    <field name="batch-id" type="string" required="true" indexed="true" stored="true"/>
+    <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
 
-    <xi:include href="schema_custom_fields.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
-      <xi:fallback></xi:fallback>
-    </xi:include>
-
+    <dynamicField name="TEXT__*" type="text_en_splitting" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
+    <dynamicField name="MULTITEXT__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
 </schema>
