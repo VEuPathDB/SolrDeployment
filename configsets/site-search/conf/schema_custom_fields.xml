@@ -14,4 +14,9 @@
   <dynamicField name="TEXT__*" type="text_en_splitting" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
   <dynamicField name="MULTITEXT__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
   <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
+  <field name="wdkPrimaryKey" type="string" required="false" indexed="false" stored="true" multiValued="true"/> <!-- used for forming URL -->
+  <field name="wdkPrimaryKeyString" type="string" required="false" indexed="false" stored="true"/> <!-- used for sorting (comment updater) -->
+  <field name="organism" type="string" required="false" indexed="true" stored="false"/> <!-- used for organism filtering -->
+  <field name="project" type="string" required="false" indexed="true" stored="false"/> <!-- used for project filtering -->
+  <field name="userCommentIds" type="pint" required="false" indexed="false" stored="true" multiValued="true"/> <!-- used by comment updater -->
 </fields>
