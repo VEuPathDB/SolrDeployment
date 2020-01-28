@@ -12,3 +12,5 @@ services:
     volumes:
       - volume_solrdata_v1:/var/solr/
     command: ["solr-precreate", "site_search", "/opt/solr/server/solr/configsets/site-search"]
+    #command: ["solr-precreate", "vb_popbio", "/opt/solr/server/solr/configsets/vb_popbio"]
+    #command: ["solr-precreate", "vb_ta", "/opt/solr/server/solr/configsets/vb_ta"]

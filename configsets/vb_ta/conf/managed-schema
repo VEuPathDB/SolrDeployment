@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Solr managed schema - automatically generated - DO NOT EDIT -->
+<schema name="ac-v1.0" version="1.0">
+  <uniqueKey>id</uniqueKey>
+  <fieldType name="autocomplete_edge" class="solr.TextField">
+    <analyzer type="index">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" maxGramSize="30" minGramSize="1"/>
+    </analyzer>
+    <analyzer type="query">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="^(.{30})(.*)?" replace="all" replacement="$1"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="autocomplete_ngram" class="solr.TextField">
+    <analyzer type="index">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.WordDelimiterFilterFactory" catenateNumbers="0" generateNumberParts="1" splitOnCaseChange="1" generateWordParts="1" catenateAll="0" catenateWords="0"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" maxGramSize="20" minGramSize="1"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\w\d\*æøåÆØÅ ])" replace="all" replacement=""/>
+    </analyzer>
+    <analyzer type="query">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.WordDelimiterFilterFactory" catenateNumbers="0" generateNumberParts="0" splitOnCaseChange="0" generateWordParts="0" catenateAll="0" catenateWords="0"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\w\d\*æøåÆØÅ ])" replace="all" replacement=""/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="^(.{20})(.*)?" replace="all" replacement="$1"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="binary" class="solr.BinaryField"/>
+  <fieldType name="boolean" class="solr.BoolField" omitNorms="true" sortMissingLast="true"/>
+  <fieldType name="date" class="solr.TrieDateField" omitNorms="true" sortMissingLast="true"/>
+  <fieldType name="double" class="solr.TrieDoubleField" omitNorms="true" positionIncrementGap="0" precisionStep="0"/>
+  <fieldType name="float" class="solr.TrieFloatField" omitNorms="true" positionIncrementGap="0" precisionStep="0"/>
+  <fieldType name="geohash" class="solr.GeoHashField"/>
+  <fieldType name="int" class="solr.TrieIntField" omitNorms="true" positionIncrementGap="0" precisionStep="0"/>
+  <fieldType name="location" class="solr.LatLonType" subFieldType="tdouble"/>
+  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" geo="true" maxDistErr="0.001" distErrPct="0.025" distanceUnits="kilometers"/>
+  <fieldType name="long" class="solr.TrieLongField" omitNorms="true" positionIncrementGap="0" precisionStep="0"/>
+  <fieldType name="string" class="solr.StrField" omitNorms="true" sortMissingLast="true"/>
+  <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" positionIncrementGap="0" precisionStep="6"/>
+  <fieldType name="tdouble" class="solr.TrieDoubleField" omitNorms="true" positionIncrementGap="0" precisionStep="8"/>
+  <fieldType name="text_phonetic_do" class="solr.TextField" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.DoubleMetaphoneFilterFactory" inject="false"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="text_suggest" class="solr.TextField" positionIncrementGap="100" multiValued="false">
+    <analyzer type="index">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.WordDelimiterFilterFactory" catenateNumbers="1" generateNumberParts="1" splitOnCaseChange="1" generateWordParts="1" splitOnNumerics="1" preserveOriginal="1" catenateAll="1" catenateWords="1"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\w\d\*æøåÆØÅ ])" replace="all" replacement=" "/>
+    </analyzer>
+    <analyzer type="query">
+      <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.WordDelimiterFilterFactory" catenateNumbers="0" generateNumberParts="0" splitOnCaseChange="0" generateWordParts="0" splitOnNumerics="0" catenateAll="0" catenateWords="0"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\w\d\*æøåÆØÅ ])" replace="all" replacement=" "/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="tfloat" class="solr.TrieFloatField" omitNorms="true" positionIncrementGap="0" precisionStep="8"/>
+  <fieldType name="tint" class="solr.TrieIntField" omitNorms="true" positionIncrementGap="0" precisionStep="8"/>
+  <fieldType name="tlong" class="solr.TrieLongField" omitNorms="true" positionIncrementGap="0" precisionStep="8"/>
+  <field name="bundle" type="string" multiValued="false" indexed="true" stored="true"/>
+  <field name="date" type="date" multiValued="true" indexed="true" stored="true"/>
+  <field name="field" type="string" multiValued="false" indexed="false" stored="true"/>
+  <field name="geo_coords" type="location_rpt" indexed="true" stored="true"/>
+  <field name="has_abundance_data_b" type="boolean" multiValued="false" indexed="true" stored="true"/>
+  <field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
+  <field name="is_synonym" type="boolean" multiValued="false" indexed="true" stored="true"/>
+  <field name="phenotype_type_s" type="string" multiValued="false" indexed="true" stored="true"/>
+  <field name="signatureField" type="string" multiValued="false" indexed="true" stored="true"/>
+  <field name="stable_id" type="string" multiValued="false" indexed="true" required="false" stored="true"/>
+  <field name="textboost" type="long" multiValued="false" indexed="true" stored="true"/>
+  <field name="textng" type="autocomplete_ngram" omitNorms="true" omitTermFreqAndPositions="true" indexed="true" stored="false"/>
+  <field name="textnge" type="autocomplete_edge" indexed="true" stored="false"/>
+  <field name="textphon" type="text_phonetic_do" omitNorms="true" omitTermFreqAndPositions="true" indexed="true" stored="false"/>
+  <field name="textsuggest" type="text_suggest" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
+  <field name="textsuggest_category" type="string" multiValued="false" indexed="true" stored="true"/>
+  <field name="type" type="string" multiValued="false" indexed="true" stored="true"/>
+  <dynamicField name="*_s" type="string" omitNorms="true" indexed="false" stored="true"/>
+  <copyField source="textsuggest" dest="textng"/>
+  <copyField source="textsuggest" dest="textnge"/>
+  <copyField source="textsuggest" dest="textphon"/>
+  <copyField source="textsuggest" dest="textsuggest_category"/>
+</schema>
