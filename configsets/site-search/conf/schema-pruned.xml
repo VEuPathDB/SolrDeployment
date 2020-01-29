@@ -84,17 +84,12 @@
       </analyzer>
     </fieldType>
 
-    <!-- VEuPathDB's custom fields and types. -->
-    <fieldType name="documentType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="documentType"/>
-    <fieldType name="batchType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="batchType"/>
+    <!-- Include VEuPathDB's custom fields and types. -->
+    <xi:include href="schema_custom_types.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
+      <xi:fallback></xi:fallback>
+    </xi:include>
 
-    <field name="document-type" type="documentType" required="true" indexed="true" stored="true"/> 
-    <field name="batch-type" type="batchType" required="true" indexed="true" stored="true"/>
-    <field name="batch-timestamp" type="pint" required="true" indexed="true" stored="true"/>
-    <field name="batch-name" type="string" required="true" indexed="true" stored="true"/>
-    <field name="batch-id" type="string" required="true" indexed="true" stored="true"/>
-    <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
-
-    <dynamicField name="TEXT__*" type="text_en_splitting" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
-    <dynamicField name="MULTITEXT__*" type="text_en_splitting" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
+    <xi:include href="schema_custom_fields.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
+      <xi:fallback></xi:fallback>
+    </xi:include>
 </schema>
