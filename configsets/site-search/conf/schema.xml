@@ -412,7 +412,9 @@
                 ignoreCase="true"
                 words="lang/stopwords_en.txt"
         />
+	<!-- remove word splitter 
         <filter class="solr.WordDelimiterGraphFilterFactory" splitOnNumerics="0" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
+         -->
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
         <filter class="solr.PorterStemFilterFactory"/>
