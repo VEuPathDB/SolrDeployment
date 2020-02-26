@@ -4,8 +4,9 @@
     <value>document-categories</value>
     <value>document-fields</value>
     <value>pathway</value>
-    <value>Workshop exercise</value>
-    <value>Tutorial</value>
+    <value>workshop-exercise</value>
+    <value>tutorial</value>
+    <value>general</value>
     <value>organism</value>
     <value>genomic-sequence</value>
     <value>popsetSequence</value>
