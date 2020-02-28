@@ -15,6 +15,7 @@
     <value>dataset</value>
     <value>compound</value>
     <value>search</value>
+    <value>news</value>
   </enum>
   <enum name="batchType">
     <value>organism</value>
