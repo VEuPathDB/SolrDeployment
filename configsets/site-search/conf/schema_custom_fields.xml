@@ -1,23 +1,76 @@
 <!--
- This is VEuPathDB's custom fields file. This is where new schema fields
- should be added. Before adding to this schema, check 'schema.xml' to make
- sure it doesn't already contain something that can do what you want.
- 'schema.xml' also contains useful reference documentation.
+    This is VEuPathDB's custom fields file.  It is imported into schema.xml.
+    This is where new schema fields should be added.
 -->
 
 <fields>
-  <field name="document-type" type="documentType" required="true" indexed="true" stored="true"/> 
+
+  <!-- Note: the main schema.xml file indicates that each doc must have a unique 'id' field.  We form that
+       by concatenating document-type_primaryKey (for the great majority of docs that have primaryKey) -->
+
+  <!-- Every document must be labeled with its type, drawn from an enum.
+       In order for the site search service to expose a doc type to the client, the doc type must be included
+       in the 'document-categories' meta document. See SiteSearchData/Model/data/documentTypeCategories.json -->
+  
+  <field name="document-type" type="documentType" required="true" indexed="true" stored="true"/>
+
+  
+  <!-- Every document is loaded as part of a batch (no exceptions).  These fields describe that batch.  For every batch
+       loaded, there is a corresponding batch (meta) document containing the same information, and
+       indicating that the batch was loaded successfully -->
+  
   <field name="batch-type" type="batchType" required="true" indexed="true" stored="true"/>
   <field name="batch-timestamp" type="pint" required="true" indexed="true" stored="true"/>
   <field name="batch-name" type="string" required="true" indexed="true" stored="true"/>
+  <!-- batch-id is formed by concatenating type_name_timestamp -->
   <field name="batch-id" type="string" required="true" indexed="true" stored="true"/>
+
+  
+  <!-- The site search service limits solr queries to searching only instances of these two dynamic fields.
+       No other fields are ever searched by the service.
+       We set storeOffsetsWithPositions and termVectors to true because the solr docs indicate doing so speeds up highlighting.
+       In order for the site search service to know about any fields, they must be included in the 'document-fields'
+       meta document. See SiteSearchData/Model/data/nonWdkDocumentFields.json (WDK field info is generated automatically by the
+       loaders) -->
+  
   <dynamicField name="TEXT__*" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
   <dynamicField name="MULTITEXT__*" type="text_general" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  
+
+  <!-- The (possibly) multi-valued primary key.  Required by the site search service for all searchable documents.
+       It is used by the client to form an URL linking to a document when presented in search results.  The client must use
+       the document-type field, and its own custom logic, to know how to form a proper URL from the primaryKey -->
+  <field name="primaryKey" type="string" required="false" indexed="false" stored="true" multiValued="true"/>
+
+  
+  <!-- A single-valued version of the primary key useful for sorting documents by primary key. Formed by concatting the PK.
+       (Used, eg, by the User Comment Updater to sort comments as part of its synchronization logic) -->
+  <field name="wdkPrimaryKeyString" type="string" required="false" indexed="true" stored="true"/>
+
+  
+  <!-- The text to display in a hyperlink to this document.  If not provided, the client can form the text with the primaryKey -->
+  <field name="hyperlinkName" type="string" required="false" indexed="false" stored="true"/>
+  
+
+  <!-- A blob of json holding meta information for the site search service about the documents and fields in solr.  These
+       blobs are created by the solr loading system, and are found in document types 'document-fields' and 'document-categories' -->
   <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
-  <field name="primaryKey" type="string" required="false" indexed="false" stored="true" multiValued="true"/> <!-- used for forming URL -->
-  <field name="wdkPrimaryKeyString" type="string" required="false" indexed="true" stored="true"/> <!-- used for sorting (comment updater) -->
-  <field name="hyperlinkName" type="string" required="false" indexed="false" stored="true"/> <!-- used as hyperlink name in results display -->
-  <field name="organism" type="string" required="false" indexed="true" stored="false"/> <!-- used for organism filtering -->
-  <field name="project" type="string" required="false" indexed="true" stored="false"/> <!-- used for project filtering -->
-  <field name="userCommentIds" type="pint" required="false" indexed="false" stored="true" multiValued="true"/> <!-- used by comment updater -->
+
+
+  <!-- An optional field indicating the organism this document is associated with, if any.  Used for filtering and faceting by
+       organism -->
+  <field name="organism" type="string" required="false" indexed="true" stored="false"/>
+
+  
+  <!-- An optional field indicating the project this document is associated with, if any (eg, PlasmoDB).
+       Used for filtering by project.  Not needed for documents that have an organism field.  But is needed for
+       documents that are loaded per project, such as Pathways and Searches.  This is possibly temporary, and may
+       be retired when we move to UniDB -->
+  <field name="project" type="string" required="false" indexed="true" stored="false"/>
+
+
+  <!-- An optional field needed for documents that have user comments. Contains a list of user comment IDs.  Used by
+       the User Comments Updater -->
+  <field name="userCommentIds" type="pint" required="false" indexed="false" stored="true" multiValued="true"/>
+  
 </fields>
