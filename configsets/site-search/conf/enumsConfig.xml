@@ -20,6 +20,7 @@
   <enum name="batchType">
     <value>organism</value>
     <value>pathway</value>
+    <value>popset-isolate</value>
     <value>compound</value>
     <value>jekyll</value>
     <value>wdkmeta</value>
