@@ -10,6 +10,7 @@
     <value>organism</value>
     <value>genomic-sequence</value>
     <value>popsetSequence</value>
+    <value>popbio-sample</value>
     <value>est</value>
     <value>gene</value>
     <value>dataset</value>
@@ -27,5 +28,6 @@
     <value>dataset-presenter</value>
     <value>document-categories</value>
     <value>document-fields</value>
+    <value>samples</value>  <!-- pop bio samples -->
   </enum>
 </enumsConfig>
