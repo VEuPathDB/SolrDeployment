@@ -1,12 +1,18 @@
 <enumsConfig>
+  
+  <!-- the types of documents allowed in solr -->
   <enum name="documentType">
-    <value>batch-meta</value>
-    <value>document-categories</value>
-    <value>document-fields</value>
+
+    <!-- metadata document types -->
+    <value>batch-meta</value>  <!-- For the loading system: describes a batch of documents loaded into solr.  all docs are loaded in a batch -->
+    <value>document-categories</value>  <!-- For the Service and UI: a categorized list of document types, including props like displayName. -->
+    <value>document-fields</value>  <!-- For the Service and UI: metadata about each document's fields -->
+
+    <!-- regular document types -->
     <value>pathway</value>
     <value>workshop-exercise</value>
     <value>tutorial</value>
-    <value>general</value>
+    <value>general</value> <!-- About, Glossary, etc -->
     <value>organism</value>
     <value>genomic-sequence</value>
     <value>popsetSequence</value>
@@ -18,13 +24,15 @@
     <value>search</value>
     <value>news</value>
   </enum>
+  
+  <!-- the types of batches of documents allowed to be loaded into solr -->
   <enum name="batchType">
     <value>organism</value>
     <value>pathway</value>
     <value>popset-isolate</value>
     <value>compound</value>
     <value>jekyll</value>
-    <value>wdkmeta</value>
+    <value>wdkmeta</value>  <!-- wdk searches, so far -->
     <value>dataset-presenter</value>
     <value>document-categories</value>
     <value>document-fields</value>
