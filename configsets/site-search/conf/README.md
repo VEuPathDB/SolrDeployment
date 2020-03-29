@@ -19,6 +19,12 @@ The `schema_custom_fields.xml` file contains all the VEuPathDB custom fields.  I
 
 The `schema_custom_types.xml` and `enumsConfig.xml` files contain the definition of the VEuPathDB custom types.  They are documented.
 
+The most important concepts in the schema are that:
+* all documents have a *type*.  The schema enforces that only known types can be loaded.
+* all documents are loaded as part of a *batch*.  A batch has a *type*, a *name* and a *timestamp* that, taken together, uniquely identifies the batch.  These fields are required in all documents, ensuring that the batch provenance of all documents is known.  (The loading system ensures that only a single batch of a given type and name (e.g. `organism` `pfal3D7`) can be loaded into the system.)  In addition to the data documents loaded in a batch, a meta-document describing the batch is loaded.  This is done at the end of batch loading, serving as a flag that the batch has loaded completely and successfully.
+* only two types of fields are searched against the end-user's input.  These fields are defined "dynamically", meaning they contain wildcards: `TEXT__*` and `MULTITEXT__*`.  We use dynamic field definitions because the names of the fields are determined by external systems (e.g., the WDK).  We do not know their names at schema definition time.
+* we do _not_ support a default field definition.  This means that all fields in solr must conform to our precise schema.
+
 ## Other files
 * `lang/`  - a directory of language specific stuff.  We don't use it.  Can probably be removed.
 * `managed-schema` - for use by managed schema, which we don't use.  Can probably be removed.
