@@ -18,3 +18,11 @@ We started with the standard `schema.xml` file provided by solr and pruned away 
 The `schema_custom_fields.xml` file contains all the VEuPathDB custom fields.  It is thoroughly documented.
 
 The `schema_custom_types.xml` and `enumsConfig.xml` files contain the definition of the VEuPathDB custom types.  They are documented.
+
+## Other files
+* `lang/`  - a directory of language specific stuff.  We don't use it.  Can probably be removed.
+* `managed-schema` - for use by managed schema, which we don't use.  Can probably be removed.
+* `params.json` - seems to set defaults for solr queries.  Our Site Search Service never uses defaults.  Probably needed.
+* `protwords.txt` - words to protect from stemming, which we don't use.  Can be removed once we remove text_en_splitting from schema.xml
+* `stopwords.txt` - words to ignore when querying.  Currently empty.  Because we are a scientific database, we figured we don't need stop words. 
+* `synonyms.txt` - synonyms to use when querying.  Not really used.  Might be useful eventually
