@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# need argument boilerplate here
+
+function print_usage() {
+cat <<EOF
+Usage:
+
+$0 push corename
+
+will push the specified corename to the remote repository.  
+
+$0 list
+
+will list the available cores in the remote repository
+
+$0 pull corename
+
+will pull the listed corename from the remote repository
+
+EOF
+
+}
+
+# write out temp key from REPO_KEY env var
+
+REPO_KEY_PATH=/tmp/.ssh/
+REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
+
+CORE_PATH=/var/solr/data
+
+# create key dir if needed
+if [ ! -d "$REPO_KEY_PATH" ]
+then
+  mkdir -p $REPO_KEY_PATH
+  chmod 700 $REPO_KEY_PATH
+fi
+  
+
+# create key content if needed
+if [ ! -s "$REPO_KEY_FILE" ]
+then
+  echo $REPO_KEY | base64 -d > $REPO_KEY_FILE
+  chmod 600 $REPO_KEY_FILE
+fi
+
+function run_remote() {
+    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "$@"
+}
+
+function backup() {
+
+REMOTE_NAME="/home/vagrant/core_repo/${HOSTNAME}_site_search_datestamp.tar.gz"
+tar -C /var/solr/data/site_search -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat > $REMOTE_NAME"
+
+}
+
+function push() {
+  CORE_NAME=$1
+  CORE_FULL_PATH="${CORE_PATH}/${CORE_NAME}"
+
+  if [ ! -d "$CORE_FULL_PATH" ]
+  then
+    echo "${CORE_FULL_PATH} doesn't exist"
+    print_usage
+    exit -1
+  fi
+
+  DATESTAMP=$(date +"%F_%H.%M")
+  REMOTE_REPO_PATH=/home/vagrant/core_repo
+  REMOTE_NAME="${REMOTE_REPO_PATH}/${HOSTNAME}_${CORE_NAME}_${DATESTAMP}.tar.gz"
+  echo "attempting to push ${CORE_NAME} to ${REPO_HOST} as ${REMOTE_NAME}"
+}
+
+#print_usage
+
+push site_search
+#run_remote "ls -al /"
+#
+#backup
+
+
