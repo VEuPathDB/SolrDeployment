@@ -1,9 +1,36 @@
 #!/bin/bash
 
-# need argument boilerplate here
+# Globals
 
-function print_usage() {
-cat <<EOF
+ProgName=$(basename $0)
+
+REPO_KEY_PATH=/tmp/.ssh/
+REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
+
+#TODO move to somewhere more general (env?)
+REMOTE_REPO_PATH=/home/vagrant/core_repo
+
+CORE_PATH=/var/solr/data
+
+# write out temp key from REPO_KEY env var
+
+# create key dir if needed
+if [ ! -d "$REPO_KEY_PATH" ]
+then
+  mkdir -p $REPO_KEY_PATH
+  chmod 700 $REPO_KEY_PATH
+fi
+  
+# create key content if needed
+if [ ! -s "$REPO_KEY_FILE" ]
+then
+  echo $REPO_KEY | base64 -d > $REPO_KEY_FILE
+  chmod 600 $REPO_KEY_FILE
+fi
+    
+
+function sub_help() {
+    cat <<EOF
 Usage:
 
 $0 push corename
@@ -22,32 +49,12 @@ EOF
 
 }
 
-# write out temp key from REPO_KEY env var
-
-REPO_KEY_PATH=/tmp/.ssh/
-REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
-
-CORE_PATH=/var/solr/data
-
-# create key dir if needed
-if [ ! -d "$REPO_KEY_PATH" ]
-then
-  mkdir -p $REPO_KEY_PATH
-  chmod 700 $REPO_KEY_PATH
-fi
-  
-
-# create key content if needed
-if [ ! -s "$REPO_KEY_FILE" ]
-then
-  echo $REPO_KEY | base64 -d > $REPO_KEY_FILE
-  chmod 600 $REPO_KEY_FILE
-fi
-
 function run_remote() {
     ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "$@"
 }
 
+
+#TODO remove
 function backup() {
 
 REMOTE_NAME="/home/vagrant/core_repo/${HOSTNAME}_site_search_datestamp.tar.gz"
@@ -55,26 +62,71 @@ tar -C /var/solr/data/site_search -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHos
 
 }
 
-function push() {
+function sub_push() {
   CORE_NAME=$1
   CORE_FULL_PATH="${CORE_PATH}/${CORE_NAME}"
+
+  if [ "$CORE_NAME" == "" ]
+  then
+    echo "Core name is required!"
+    sub_help
+    exit -1
+  fi
 
   if [ ! -d "$CORE_FULL_PATH" ]
   then
     echo "${CORE_FULL_PATH} doesn't exist"
-    print_usage
+    sub_help
     exit -1
   fi
 
   DATESTAMP=$(date +"%F_%H.%M")
-  REMOTE_REPO_PATH=/home/vagrant/core_repo
   REMOTE_NAME="${REMOTE_REPO_PATH}/${HOSTNAME}_${CORE_NAME}_${DATESTAMP}.tar.gz"
   echo "attempting to push ${CORE_NAME} to ${REPO_HOST} as ${REMOTE_NAME}"
+  tar -C /var/solr/data/${CORE_NAME} -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat > $REMOTE_NAME"
+
 }
+
+function sub_list() {
+
+    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "ls -altr $REMOTE_REPO_PATH"
+}
+
+function sub_pull() {
+
+  TAR_FILENAME=$1
+  #TODO should split out core name from filename
+#  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}.*$/\1/')
+  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
+  DEST_DIR=${SOLR_HOME}/${LOCAL_CORE_NAME}
+  #TODO check for existence, error if it is there (or check return from mkdir)
+  mkdir $DEST_DIR &&\
+  ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat ${REMOTE_REPO_PATH}/${TAR_FILENAME}" | tar -C ${DEST_DIR} -xzf - .
+  
+}
+
+
+subcommand=$1
+
+case $subcommand in
+    "" | "-h" | "--help")
+        sub_help
+        ;;
+    *)
+        shift
+        sub_${subcommand} $@
+        if [ $? = 127 ]; then
+            echo "Error: '$subcommand' is not a known subcommand." >&2
+            echo "       Run '$ProgName --help' for a list of known subcommands." >&2
+            exit 1
+        fi
+        ;;
+esac
+
 
 #print_usage
 
-push site_search
+#push site_search
 #run_remote "ls -al /"
 #
 #backup
