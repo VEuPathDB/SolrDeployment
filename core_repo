@@ -49,19 +49,6 @@ EOF
 
 }
 
-function run_remote() {
-    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "$@"
-}
-
-
-#TODO remove
-function backup() {
-
-REMOTE_NAME="/home/vagrant/core_repo/${HOSTNAME}_site_search_datestamp.tar.gz"
-tar -C /var/solr/data/site_search -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat > $REMOTE_NAME"
-
-}
-
 function sub_push() {
   CORE_NAME=$1
   CORE_FULL_PATH="${CORE_PATH}/${CORE_NAME}"
@@ -123,12 +110,5 @@ case $subcommand in
         ;;
 esac
 
-
-#print_usage
-
-#push site_search
-#run_remote "ls -al /"
-#
-#backup
 
 
