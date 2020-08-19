@@ -7,5 +7,5 @@ USER root
 RUN apt update && apt install -y jq
 # create solr's home dir so ssh doesn't complain
 RUN mkdir /home/solr && chown solr /home/solr
-COPY crepo /usr/local/bin/crepo
+COPY crepo_files/crepo /usr/local/bin/crepo
 USER solr

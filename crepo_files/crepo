@@ -111,7 +111,7 @@ function sub_push() {
 
 function sub_list() {
 
-    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "ls -altr $REMOTE_REPO_PATH"
+    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "ls -ltr $REMOTE_REPO_PATH"
 }
 
 function sub_pull() {
