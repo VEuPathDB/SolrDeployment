@@ -117,18 +117,27 @@ function sub_list() {
 function sub_pull() {
 
   TAR_FILENAME=$1
-  #TODO should split out core name from filename (done?)
-#  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}.*$/\1/')
-#  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
+  # below regex, for "dev_site_search_2020-07-06_15.13.tar.gz" returns "site_search_2020-07-06_15.13" (could be used if env prefix is not desired)
+  # LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
 
-  # below regex, for "dev_site_search_2020-07-06_15.13.tar.gz" returns "site_search_2020-07-06_15.13"
-  LOCAL_INSTANCE_DIR=$(echo $TAR_FILENAME | sed -E 's/^([a-z0-9]+_[a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
-  DEST_DIR=${SOLR_HOME}/${LOCAL_INSTANCE_DIR}
+  # below regex, for "dev_site_search_2020-07-06_15.13.tar.gz" returns "dev_site_search_2020-07-06_15.13"
+  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^([a-z0-9]+_[a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
+  DEST_DIR=${SOLR_HOME}/${LOCAL_CORE_NAME}
+
   #TODO check for existence, error if it is there (or check return from mkdir)
   echo "attempting to pull ${TAR_FILENAME} and expand in ${DEST_DIR}"
   mkdir $DEST_DIR &&\
   ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat ${REMOTE_REPO_PATH}/${TAR_FILENAME}" | tar -C ${DEST_DIR} -xzf - .
-  
+
+  # move aside core.properties
+  mv ${DEST_DIR}/core.properties ${DEST_DIR}/core.properties.crepo || true
+
+  # issue create call to solr to load core
+  echo running... curl "solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml"
+  curl -s "solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml" && \
+  echo "core ${LOCAL_CORE_NAME} created: " && \
+  curl -s "solr:8983/solr/admin/cores?core=${LOCAL_CORE_NAME}" | jq
+
 }
 
 
