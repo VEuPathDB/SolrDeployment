@@ -39,6 +39,9 @@ then
   chmod 600 $REPO_KEY_FILE
 fi
     
+function log() {
+  echo "*** ${1} ***"
+}
 
 function sub_help() {
     cat <<EOF
@@ -76,7 +79,7 @@ function sub_push() {
 
   if [ "$CORE_NAME" == "" ]
   then
-    echo "Core name is required!"
+    log "Core name is required!"
     sub_help
     exit -1
   fi
@@ -85,18 +88,18 @@ function sub_push() {
   CURL_QUERY="'http://solr:8983/solr/admin/cores?action=STATUS&core=${CORE_NAME}'"
   SOLR_OUTPUT=$(eval curl -s "${CURL_QUERY}")
   INSTANCE_DIR=$(echo $SOLR_OUTPUT | jq .status.${CORE_NAME}.instanceDir | tr -d \")
-  echo "solr output: ${SOLR_OUTPUT}"
-  echo "instanceDir: ${INSTANCE_DIR}"
+  log "solr output: ${SOLR_OUTPUT}"
+  log "instanceDir: ${INSTANCE_DIR}"
 
   if [ "$INSTANCE_DIR" == "" ]
   then
-    echo "core not found in solr!"
+    log "core not found in solr!"
     exit -1
   fi
  
   if [ ! -d "$INSTANCE_DIR" ]
   then
-    echo "${INSTANCE_DIR} doesn't exist!"
+    log "${INSTANCE_DIR} doesn't exist!"
     sub_help
     exit -1
   fi
@@ -104,7 +107,7 @@ function sub_push() {
   DATESTAMP=$(date +"%F_%H.%M")
   REMOTE_NAME="${REMOTE_REPO_PATH}/${REPO_ENV}_${CORE_NAME}_${DATESTAMP}.tar.gz"
   
-  echo "attempting to push ${CORE_NAME} (${INSTANCE_DIR}) to ${REPO_HOST} as ${REMOTE_NAME}"
+  log "pushing ${CORE_NAME} (${INSTANCE_DIR}) to ${REPO_HOST} as ${REMOTE_NAME}"
   tar -C ${INSTANCE_DIR} -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat > $REMOTE_NAME"
 
 }
@@ -125,17 +128,17 @@ function sub_pull() {
   DEST_DIR=${SOLR_HOME}/${LOCAL_CORE_NAME}
 
   #TODO check for existence, error if it is there (or check return from mkdir)
-  echo "attempting to pull ${TAR_FILENAME} and expand in ${DEST_DIR}"
-  mkdir $DEST_DIR &&\
+  log "pulling ${TAR_FILENAME} and expanding in ${DEST_DIR}"
+  mkdir $DEST_DIR || exit -1 &&\
   ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat ${REMOTE_REPO_PATH}/${TAR_FILENAME}" | tar -C ${DEST_DIR} -xzf - .
 
   # move aside core.properties
   mv ${DEST_DIR}/core.properties ${DEST_DIR}/core.properties.crepo || true
 
   # issue create call to solr to load core
-  echo running... curl "solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml"
+  log "running... curl \"solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml\""
   curl -s "solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml" && \
-  echo "core ${LOCAL_CORE_NAME} created: " && \
+  log "core ${LOCAL_CORE_NAME} created: " && \
   curl -s "solr:8983/solr/admin/cores?core=${LOCAL_CORE_NAME}" | jq
 
 }
