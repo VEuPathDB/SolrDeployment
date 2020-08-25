@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# This file is placed on the repository server and is used to restrict what the
+# key can do.  It should be referenced in ~/.ssh/authorized_keys similar to:
+#
+# no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command="/home/solrepo/wrap"
+# 
+# in most cases this will be deployed on the server side, and is irrelevant to
+# the crepo script.  However, it is presented here as a reference.
+
+#echo "'$SSH_ORIGINAL_COMMAND'"  >> /tmp/oc
+
+#echo $SSH_ORIGINL_COMMAND | grep -E "^cat > $REPO_PATH/[a-z0-9]+_[a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}.tar.gz$"
+
+REPO_PATH=/home/solrepo/repo
+
+case "$SSH_ORIGINAL_COMMAND" in
+    *\&*)
+        ;;
+    *\(*)
+        ;;
+    *\{*)
+        ;;
+    *\;*)
+        ;;
+    *\<*)
+        ;;
+    *\`*)
+        ;;
+    *\;*)
+        ;;
+    *\|*)
+        ;;
+    ls\ -ltr\ $REPO_PATH)
+        eval $SSH_ORIGINAL_COMMAND
+        ;;
+    cat*)
+        eval $SSH_ORIGINAL_COMMAND
+#        echo "sucess for $SSH_ORIGINAL_COMMAND"  >> /tmp/oc
+        ;;
+    *)
+        ;;
+esac

@@ -1,0 +1,165 @@
+#!/bin/bash
+
+# This script assumes the following environment variables have been set:
+
+# REPO_KEY: a base64 encoded private key used to access the core repository.  Can be obtained with "base64 [privatekey] | tr -d '\n' "
+#
+# REPO_ENV: the environment of the container, used to create the name of the
+# tarball.  Typically (load, dev, qa, prod)
+#
+# REPO_HOST: the host of the repository.  should include username, user@host
+# style for ssh
+
+
+# Globals
+ProgName=$(basename $0)
+
+REPO_KEY_PATH=/tmp/.ssh/
+REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
+
+#TODO move to somewhere more general (env?)
+REMOTE_REPO_PATH=/home/solrepo/repo
+#REMOTE_REPO_PATH=/home/vagrant/core_repo
+
+CORE_PATH=/var/solr/data
+
+# write out temp key from REPO_KEY env var
+
+# create key dir if needed
+if [ ! -d "$REPO_KEY_PATH" ]
+then
+  mkdir -p $REPO_KEY_PATH
+  chmod 700 $REPO_KEY_PATH
+fi
+  
+# create key content if needed
+if [ ! -s "$REPO_KEY_FILE" ]
+then
+  echo $REPO_KEY | base64 -d > $REPO_KEY_FILE
+  chmod 600 $REPO_KEY_FILE
+fi
+    
+function log() {
+  echo "*** ${1} ***"
+}
+
+function sub_help() {
+    cat <<EOF
+
+$0 will push/pull solr cores by simply using tar to archive the instance dir,
+and transferring over ssh 
+
+Usage:
+
+$0 push [corename]
+
+will push the specified corename to the remote repository.  Format for the remote name is:
+ENVIRONMENT_CORENAME_DATESTAMP.tar.gz  (DATESTAMP is YYYY-MM-DD_HH.MM)
+NOTE: this acts on the core *name* not on the instanceDir.  Solr is queried to find the instanceDir
+
+
+$0 list
+
+will list the available tarballs in the remote repository
+
+$0 pull [tarball]
+
+will pull the listed tarball from the remote repository, and unpack in data
+dir.  The unpacked instance dir is named:
+
+CORENAME_DATESTAMP
+
+EOF
+
+}
+
+function sub_push() {
+  CORE_NAME=$1
+  CORE_FULL_PATH="${CORE_PATH}/${CORE_NAME}"
+
+  if [ "$CORE_NAME" == "" ]
+  then
+    log "Core name is required!"
+    sub_help
+    exit -1
+  fi
+
+  # query solr api to find instanceDir for core
+  CURL_QUERY="'http://solr:8983/solr/admin/cores?action=STATUS&core=${CORE_NAME}'"
+  SOLR_OUTPUT=$(eval curl -s "${CURL_QUERY}")
+  INSTANCE_DIR=$(echo $SOLR_OUTPUT | jq .status.${CORE_NAME}.instanceDir | tr -d \")
+  log "solr output: ${SOLR_OUTPUT}"
+  log "instanceDir: ${INSTANCE_DIR}"
+
+  if [ "$INSTANCE_DIR" == "" ]
+  then
+    log "core not found in solr!"
+    exit -1
+  fi
+ 
+  if [ ! -d "$INSTANCE_DIR" ]
+  then
+    log "${INSTANCE_DIR} doesn't exist!"
+    sub_help
+    exit -1
+  fi
+
+  DATESTAMP=$(date +"%F_%H.%M")
+  REMOTE_NAME="${REMOTE_REPO_PATH}/${REPO_ENV}_${CORE_NAME}_${DATESTAMP}.tar.gz"
+  
+  log "pushing ${CORE_NAME} (${INSTANCE_DIR}) to ${REPO_HOST} as ${REMOTE_NAME}"
+  tar -C ${INSTANCE_DIR} -czf - . | ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat > $REMOTE_NAME"
+
+}
+
+function sub_list() {
+
+    ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "ls -ltr $REMOTE_REPO_PATH"
+}
+
+function sub_pull() {
+
+  TAR_FILENAME=$1
+  # below regex, for "dev_site_search_2020-07-06_15.13.tar.gz" returns "site_search_2020-07-06_15.13" (could be used if env prefix is not desired)
+  # LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^[a-z0-9]+_([a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
+
+  # below regex, for "dev_site_search_2020-07-06_15.13.tar.gz" returns "dev_site_search_2020-07-06_15.13"
+  LOCAL_CORE_NAME=$(echo $TAR_FILENAME | sed -E 's/^([a-z0-9]+_[a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/')
+  DEST_DIR=${SOLR_HOME}/${LOCAL_CORE_NAME}
+
+  #TODO check for existence, error if it is there (or check return from mkdir)
+  log "pulling ${TAR_FILENAME} and expanding in ${DEST_DIR}"
+  mkdir $DEST_DIR || exit -1 &&\
+  ssh -i $REPO_KEY_FILE -o "StrictHostKeyChecking No" -o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" $REPO_HOST "cat ${REMOTE_REPO_PATH}/${TAR_FILENAME}" | tar -C ${DEST_DIR} -xzf - .
+
+  # move aside core.properties
+  mv ${DEST_DIR}/core.properties ${DEST_DIR}/core.properties.crepo || true
+
+  # issue create call to solr to load core
+  log "running... curl \"solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml\""
+  curl -s "solr:8983/solr/admin/cores?action=CREATE&config=solrconfig.xml&dataDir=${DEST_DIR}/data&instanceDir=${DEST_DIR}&name=${LOCAL_CORE_NAME}&schema=schema.xml" && \
+  log "core ${LOCAL_CORE_NAME} created: " && \
+  curl -s "solr:8983/solr/admin/cores?core=${LOCAL_CORE_NAME}" | jq
+
+}
+
+
+subcommand=$1
+
+case $subcommand in
+    "" | "-h" | "--help")
+        sub_help
+        ;;
+    *)
+        shift
+        sub_${subcommand} $@
+        if [ $? = 127 ]; then
+            echo "Error: '$subcommand' is not a known subcommand." >&2
+            echo "       Run '$ProgName --help' for a list of known subcommands." >&2
+            exit 1
+        fi
+        ;;
+esac
+
+
+
