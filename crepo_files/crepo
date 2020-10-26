@@ -17,9 +17,7 @@ ProgName=$(basename $0)
 REPO_KEY_PATH=/tmp/.ssh/
 REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
 
-#TODO move to somewhere more general (env?)
-REMOTE_REPO_PATH=/home/solrepo/repo
-#REMOTE_REPO_PATH=/home/vagrant/core_repo
+REMOTE_REPO_PATH=${REMOTE_REPO_PATH:-/var/lib/crepo/cores}
 
 CORE_PATH=/var/solr/data
 
