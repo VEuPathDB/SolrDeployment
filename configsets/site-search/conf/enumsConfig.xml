@@ -22,7 +22,9 @@
     <value>dataset</value>
     <value>compound</value>
     <value>search</value>
-    <value>news</value>
+    <value>news</value> 
+    <value>group</value>    <!-- orthomcl -->
+    <value>sequence</value> <!-- orthomcl -->
   </enum>
   
   <!-- the types of batches of documents allowed to be loaded into solr -->
@@ -37,5 +39,7 @@
     <value>document-categories</value>
     <value>document-fields</value>
     <value>samples</value>  <!-- pop bio samples -->
+    <value>group</value>    <!-- orthomcl -->
+    <value>sequence</value> <!-- orthomcl -->
   </enum>
 </enumsConfig>
