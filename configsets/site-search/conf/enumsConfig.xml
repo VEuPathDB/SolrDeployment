@@ -22,6 +22,7 @@
     <value>dataset</value>
     <value>compound</value>
     <value>search</value>
+    <value>public-strategy</value>
     <value>news</value> 
     <value>group</value>    <!-- orthomcl -->
     <value>sequence</value> <!-- orthomcl -->
@@ -34,6 +35,7 @@
     <value>popset-isolate</value>
     <value>compound</value>
     <value>jekyll</value>
+    <value>public-strategy</value>
     <value>wdkmeta</value>  <!-- wdk searches, so far -->
     <value>dataset-presenter</value>
     <value>document-categories</value>
