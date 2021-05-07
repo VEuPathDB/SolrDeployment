@@ -438,6 +438,14 @@
     <field name="exp_geo_resolution_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
     <copyField source="geo_resolution_s" dest="exp_geo_resolution_s"/>
 
+    <field name="exp_case_confirmation_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
+    <copyField source="case_confirmation_s" dest="exp_case_confirmation_s"/>
+
+    <field name="exp_occupation_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
+    <copyField source="occupation_s" dest="exp_occupation_s"/>
+
+    <field name="exp_outcome_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
+    <copyField source="outcome_s" dest="exp_outcome_s"/>
 
 
     <!-- =================================== -->
