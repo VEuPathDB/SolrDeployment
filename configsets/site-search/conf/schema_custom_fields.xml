@@ -59,7 +59,7 @@
 
   <!-- An optional field indicating the organism this document is associated with, if any.  Used for filtering and faceting by
        organism -->
-  <field name="organism" type="string" required="false" indexed="true" stored="false"/>
+  <field name="organism" type="string" multiValued="true" required="false" indexed="true" stored="false"/>
 
   
   <!-- An optional field indicating the project this document is associated with, if any (eg, PlasmoDB).
