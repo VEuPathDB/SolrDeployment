@@ -447,6 +447,9 @@
     <field name="exp_outcome_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
     <copyField source="outcome_s" dest="exp_outcome_s"/>
 
+    <field name="exp_country_s" type="string" indexed="false" stored="false" multiValued="false" docValues="true"/>
+    <copyField source="country_s" dest="exp_country_s"/>
+
 
     <!-- =================================== -->
     <!-- FUNCGEN: site = "funcgen" -->
