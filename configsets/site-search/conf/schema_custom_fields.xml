@@ -51,7 +51,10 @@
   <!-- The text to display in a hyperlink to this document.  If not provided, the client can form the text with the primaryKey -->
   <field name="hyperlinkName" type="string" required="false" indexed="false" stored="true"/>
   
-
+  <!-- An unindexed display_name field.  Optionally used in the wdk model as an attribute to include in the primaryKey idAttribute.  The idAttribute 
+       will be searchable, so we want display_name not to be-->
+  <field name="display_name" type="string" required="false" indexed="false" stored="true"/>
+  
   <!-- A blob of json holding meta information for the site search service about the documents and fields in solr.  These
        blobs are created by the solr loading system, and are found in document types 'document-fields' and 'document-categories' -->
   <field name="json-blob" type="string" required="false" indexed="false" stored="true"/>
