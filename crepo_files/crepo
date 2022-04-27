@@ -24,13 +24,17 @@ function remotecmd() {
 		$REPO_HOST "$@"
 }
 
-function promptyn() {
-	select yn in "Yes" "No"; do
-		case $yn in
-			Yes ) echo '1'; break;;
-			No ) echo '0'; exit;;
-		esac
-	done
+function confirm() {
+    # call with a prompt string or use a default
+    read -r -p "${1:-Are you sure? [y/N]} " response
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            true
+            ;;
+        *)
+            false
+            ;;
+    esac
 }
 
 function rmsuffix() {
@@ -188,8 +192,7 @@ function sub_pull() {
 
 	# Prompt user to verify autoselected core
 	if [ ! -z ${CORE_NAME+x} ]; then
-		echo "Pull ${TAR_FILENAME}? (Type '1' or '2')"
-		if [ "$(promptyn)" -eq 0 ]; then
+		if ! confirm "Pull ${TAR_FILENAME}? [Y/n]"; then
 			log "pull action aborted by user"
 			exit -1
 		fi
@@ -219,8 +222,7 @@ function sub_pull() {
 
 	# Optional swap with core just pulled down
 	SWAP_CORE_NAME=$(echo "${LOCAL_CORE_NAME}" | awk -F_ '{print $2}')
-	log "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? (Type '1' or '2')" && \
-	if [ ! "$(promptyn)" -eq 0 ]; then
+	if confirm "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? [Y/n]"; then
 		log "Running: $PROG_NAME swap \"${SWAP_CORE_NAME}\" \"${LOCAL_CORE_NAME}\""
 		sub_swap "${SWAP_CORE_NAME}" "${LOCAL_CORE_NAME}"
 	else
@@ -267,8 +269,7 @@ function sub_swap() {
 
 	# Prompt user to verify selected core
 	if [ ! -z ${CORE_NAME+x} ]; then
-		echo "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? (Type '1' or '2')"
-		if [ "$(promptyn)" -eq 0 ]; then
+		if confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [Y/n]"; then
 			log "swap action aborted by user"
 			exit -1
 		fi
