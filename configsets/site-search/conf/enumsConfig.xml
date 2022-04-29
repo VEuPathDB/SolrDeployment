@@ -27,6 +27,7 @@
     <value>group</value>    <!-- orthomcl -->
     <value>sequence</value> <!-- orthomcl -->
     <value>variable</value> <!-- EDA -->
+    <value>variableValue</value> <!-- EDA -->
   </enum>
   
   <!-- the types of batches of documents allowed to be loaded into solr -->
