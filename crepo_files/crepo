@@ -109,6 +109,7 @@ function sub_help() {
 	echo -e "\t  or $PROG_NAME pull [latest] [corename | tarfile]"
 	echo -e "\t  or $PROG_NAME swap [latest | corename] [coreinstance]"
 	echo -e "\t  or $PROG_NAME list [corename]"
+	echo -e "\t  or $PROG_NAME cores"
 	echo -e "\t  or $PROG_NAME help"
 	echo
 	echo -e "\tPush or pull in Solr cores by using tar and ssh to archive and transfer\n"
@@ -148,6 +149,19 @@ function sub_push() {
 	REMOTE_NAME="${REMOTE_REPO_PATH}/${REPO_ENV}_${CORE_NAME}_${DATESTAMP}.tar.gz"
 	log "pushing ${CORE_NAME} (${INSTANCE_DIR}) to ${REPO_HOST} as ${REMOTE_NAME}"
 	tar -C ${INSTANCE_DIR} -czf - . | remotecmd "cat > $REMOTE_NAME"
+}
+
+# the cores function returns the currently loaded cores and their instance dirs
+function sub_cores() {
+    printf "Name\tDir\n"
+    for core in $(solr_cores)
+    do
+	RESPONSE=$(solr_status "$core")
+        name=$(jq -r ".status[ .status | keys[0] ].name" <<< $RESPONSE )
+        instanceDir=$(jq -r ".status[ .status | keys[0] ].instanceDir" <<< $RESPONSE )
+        printf "$name\t$instanceDir\n"
+    done
+
 }
 
 function sub_list() {
