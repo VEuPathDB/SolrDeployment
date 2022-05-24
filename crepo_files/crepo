@@ -6,11 +6,10 @@
 # REPO_HOST: the host of the repository. should include username, user@host style for ssh
 
 # Globals
-PROG_NAME=$(basename $0)
+PROG_NAME=$(basename "$0")
 REPO_KEY_PATH=/tmp/.ssh/
 REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
-REPO_REMOTE_PATH=${REMOTE_REPO_PATH:-/var/lib/crepo/cores}
-CORE_PATH=/var/solr/data
+REPO_REMOTE_PATH=${REPO_REMOTE_PATH:-/var/lib/crepo/cores}
 
 # Generic function definitions
 function log() {
@@ -21,7 +20,7 @@ function remotecmd() {
 	ssh -i $REPO_KEY_FILE \
 		-o "StrictHostKeyChecking No" \
 		-o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" \
-		$REPO_HOST "$@"
+		"$REPO_HOST" "$@"
 }
 
 function confirm() {
@@ -39,27 +38,27 @@ function confirm() {
 
 function rmsuffix() {
 	REGEX='s/^([a-z0-9]+_[a-z_]*_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}).*/\1/'
-	echo "$@" | sed -E ${REGEX}
+	echo "$@" | sed -E "${REGEX}"
 }
 
 # Solr functions
 function solr_query() {
-	curl -s "http://solr:8983/solr/admin/cores?$@"
+	curl -s "http://solr:8983/solr/admin/cores?${1}"
 }
 
 function solr_create() {
 	API_CREATE="action=CREATE&config=solrconfig.xml&schema=schema.xml"
 	RESPONSE=$(solr_query "${API_CREATE}&name=${1}&instanceDir=${2}&dataDir=${2}/data")
 
-	if [ ! "$(echo $RESPONSE | jq .responseHeader.status)" -eq 0 ]; then
+	if [ ! "$(echo "$RESPONSE" | jq .responseHeader.status)" -eq 0 ]; then
 		log "ERROR CREATING SOLR CORE: ${1}"
 		echo "${RESPONSE}" | jq
-		exit -1
+		exit 1
 	fi
 }
 
 function solr_core_info() {
-	VALUE=$(echo ${1} | jq -r ".status[ .status | keys[0] ].${2}")
+	VALUE=$(echo "${1}" | jq -r ".status[ .status | keys[0] ].${2}")
 	[ -z ${3+x} ] && KEY="$2" || KEY="$3"
 	echo "$KEY: $VALUE"
 }
@@ -77,10 +76,8 @@ function solr_info() {
 }
 
 function solr_cores() {
-	SOLR_OUTPUT=$(solr_query | jq -r '.status[].name')
-        SOLR_LIST=$(echo "${SOLR_OUTPUT}")
-
-	if [ ! -z ${1+x} ]; then
+	SOLR_LIST=$(solr_query | jq -r '.status[].name')
+	if [ $# -eq 1 ]; then
 		CORE_NAME="$1"
                 echo "${SOLR_LIST}" | grep "$CORE_NAME"
 	else
@@ -98,7 +95,7 @@ function solr_swap() {
 # for a single line, or multiple lines
 function extract_corename() {
     while read -r line ; do
-        sed -E 's/[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}.*/\1/' <<< $line
+        sed -E 's/[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}.*/\1/' <<< "$line"
     done
 }
 
@@ -123,18 +120,18 @@ function sub_push() {
 	if [ "$CORE_NAME" == "" ]; then
 		log "Core name is required!"
 		sub_help
-		exit -1
+		exit 1
 	fi
 
 	# Find instanceDir for core
-	SOLR_OUTPUT="$(solr_status ${CORE_NAME})"
+	SOLR_OUTPUT=$(solr_status "${CORE_NAME}")
 	INSTANCE_OUTPUT="$(solr_core_info "$SOLR_OUTPUT" instanceDir)"
-	INSTANCE_DIR=$(echo $INSTANCE_OUTPUT | awk '{print $2}')
+	INSTANCE_DIR=$(echo "$INSTANCE_OUTPUT" | awk '{print $2}')
 	log "${INSTANCE_OUTPUT}"
 
 	if [ "$INSTANCE_DIR" == "" ]; then
 		log "core not found in solr!"
-		exit -1
+		exit 1
 	fi
  
 	if [ ! -d "$INSTANCE_DIR" ]; then
@@ -142,13 +139,13 @@ function sub_push() {
 		echo "Available cores:"
 		solr_cores
 		sub_help
-		exit -1
+		exit 1
 	fi
 
 	DATESTAMP=$(date +"%F_%H.%M")
-	REMOTE_NAME="${REMOTE_REPO_PATH}/${REPO_ENV}_${CORE_NAME}_${DATESTAMP}.tar.gz"
+	REMOTE_NAME="${REPO_REMOTE_PATH}/${REPO_ENV}_${CORE_NAME}_${DATESTAMP}.tar.gz"
 	log "pushing ${CORE_NAME} (${INSTANCE_DIR}) to ${REPO_HOST} as ${REMOTE_NAME}"
-	tar -C ${INSTANCE_DIR} -czf - . | remotecmd "cat > $REMOTE_NAME"
+	tar -C "${INSTANCE_DIR}" -czf - . | remotecmd "cat > $REMOTE_NAME"
 }
 
 # the cores function returns the currently loaded cores and their instance dirs
@@ -157,19 +154,18 @@ function sub_cores() {
     for core in $(solr_cores)
     do
 	RESPONSE=$(solr_status "$core")
-        name=$(jq -r ".status[ .status | keys[0] ].name" <<< $RESPONSE )
-        instanceDir=$(jq -r ".status[ .status | keys[0] ].instanceDir" <<< $RESPONSE )
-        printf "$name\t$instanceDir\n"
+        name=$(jq -r ".status[ .status | keys[0] ].name" <<< "$RESPONSE" )
+        instanceDir=$(jq -r ".status[ .status | keys[0] ].instanceDir" <<< "$RESPONSE" )
+        printf "%s\t%s\n" "$name" "$instanceDir"
     done
 
 }
 
 function sub_list() {
-	REMOTE_OUTPUT=$(remotecmd "ls -ltr $REMOTE_REPO_PATH")
+	REMOTE_OUTPUT=$(remotecmd "ls -ltr $REPO_REMOTE_PATH")
 	REMOTE_LIST=$(echo "$REMOTE_OUTPUT" | grep -e ^- | awk '{print substr($0, index($0, $5))}')
-	TAR_FILENAMES=$(echo "$REMOTE_LIST" | awk '{print $5}')
 
-	if [ ! -z ${1+x} ]; then
+	if [ $# -eq 1 ]; then
 		CORE_NAME="$1"
 		echo "$REMOTE_LIST" | grep "$CORE_NAME"
 	else
@@ -180,44 +176,44 @@ function sub_list() {
 function sub_pull() {
 	# Pull latest core or was it manually selected?
 	if [ "$1" == "latest" ]; then
-		if [ ! -z ${2+x} ]; then
+		if [ $# -eq 2 ]; then
 			CORE_NAME="$2"
 			TAR_LIST=$(sub_list "$CORE_NAME")
 			TAR_FILENAME=$(echo "$TAR_LIST" | tail -n1 | awk '{print $5}')
 		else
 			log "Core name is required!"
 			sub_help
-			exit -1
+			exit 1
 		fi
 	else
-		if [ ! -z ${1+x} ]; then
+		if [ $# -eq 1 ]; then
 			TAR_LIST=$(sub_list)
 			TAR_FILENAME="$1"
 		else
 			log "Core name is required!"
 			sub_help
-			exit -1
+			exit 1
 		fi
 	fi
 
 	# Check if core exists
-	if [ ! -z "${CORE_NAME}" ] && [ -z "${TAR_LIST}" ]; then
+	if [ -n "${CORE_NAME}" ] && [ -z "${TAR_LIST}" ]; then
 		log "core \"${CORE_NAME}\" does not exist"
 		echo "Available core names to pull \"latest\" from:"
 		sub_list | extract_corename | sort | uniq
-		exit -1
+		exit 1
 	elif [ -z "$(echo "${TAR_LIST}" | awk '{print $5}' | grep -x "${TAR_FILENAME}")" ]; then
 		log "Manual selection \"${TAR_FILENAME}\" does not exist"
 		echo "Available cores to pull:"
 		echo "${TAR_LIST}" | awk '{print $5}'
-		exit -1
+		exit 1
 	fi
 
 	# Prompt user to verify autoselected core
-	if [ ! -z ${CORE_NAME+x} ]; then
+	if [ -n "${CORE_NAME}" ]; then
 		if ! confirm "Pull ${TAR_FILENAME}? [Y/n]"; then
 			log "pull action aborted by user"
-			exit -1
+			exit 1
 		fi
 	fi
 
@@ -228,15 +224,15 @@ function sub_pull() {
 	# Pull down archive and extract
 	if [ ! -d "${DEST_DIR}" ]; then
 		log "pulling ${TAR_FILENAME} and expanding in ${DEST_DIR}"
-		mkdir "$DEST_DIR" || exit -1
-		remotecmd "cat ${REMOTE_REPO_PATH}/${TAR_FILENAME}" | tar -C ${DEST_DIR} -xzf - .
+		mkdir "$DEST_DIR" || exit 1
+		remotecmd "cat ${REPO_REMOTE_PATH}/${TAR_FILENAME}" | tar -C "${DEST_DIR}" -xzf - .
 	else
 		log "Core \"${LOCAL_CORE_NAME}\" already exists at ${DEST_DIR}"
-		exit -1
+		exit 1
 	fi
 
 	# Move aside core.properties
-	mv ${DEST_DIR}/core.properties ${DEST_DIR}/core.properties.crepo
+	mv "${DEST_DIR}"/core.properties "${DEST_DIR}"/core.properties.crepo
 
 	# Issue create call to solr to load core
 	solr_create "${LOCAL_CORE_NAME}" "${DEST_DIR}" && \
@@ -258,52 +254,52 @@ function sub_pull() {
 function sub_swap() {
 	# Swap latest core or a manually selected one?
 	if [ "$1" == "latest" ]; then
-		if [ ! -z ${2+x} ]; then
+		if [ $# -eq 2 ]; then
 			CORE_NAME="$2"
 			CORE_LIST=$(solr_cores "${CORE_NAME}")
 			CORE_INSTANCE=$(echo "$CORE_LIST" | tail -n1)
 		else
 			log "Core name is required!"
 			sub_help
-			exit -1
+			exit 1
 		fi
 	else
-		if [ ! -z ${1+x} ] && [ ! -z ${2+x} ]; then
+		if [ -n "${1}" ] && [ -n "${2}" ]; then
 			CORE_NAME="$1"
 			CORE_INSTANCE="$2"
 			CORE_LIST=$(solr_cores)
 		else
 			log "Core name and core instance is required!"
 			sub_help
-			exit -1
+			exit 1
 		fi
 	fi
 
 	# Check if core exists
-	if [ ! -z "${CORE_NAME}" ] && [ -z "${CORE_LIST}" ]; then
+	if [ -n "${CORE_NAME}" ] && [ -z "${CORE_LIST}" ]; then
 		log "Instance of core \"${CORE_NAME}\" does not exist"
 		echo "Available core names to swap \"latest\" from:"
 		solr_cores | extract_corename | sort | uniq
-		exit -1
-	elif [ -z "$(echo "$CORE_LIST" | grep -x "$CORE_INSTANCE")" ]; then
-		log "Manual selection of core \"${CORE_NAME}\" does not exist"
+		exit 1
+	elif ! grep -x "$CORE_INSTANCE" <<< "$CORE_LIST"; then
+		log "Manual selection of core \"${CORE_INSTANCE}\" does not exist"
 		echo "Available cores to swap:"
 		solr_cores
-		exit -1
+		exit 1
 	fi
 
 	# Prompt user to verify selected core
-	if [ ! -z ${CORE_NAME+x} ]; then
+	if [ -n "${CORE_NAME}" ]; then
 		if ! confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [Y/n]"; then
 			log "swap action aborted by user"
-			exit -1
+			exit 1
 		fi
 
 		RESPONSE=$(solr_swap "${CORE_NAME}" "${CORE_INSTANCE}")
-		if [ ! "$(echo $RESPONSE | jq .responseHeader.status)" -eq 0 ]; then
+		if [ ! "$(echo "$RESPONSE" | jq .responseHeader.status)" -eq 0 ]; then
 			log "ERROR SWAPPING SOLR CORE: ${CORE_NAME}"
 			echo "${RESPONSE}" | jq
-			exit -1
+			exit 1
 		else
 			log "SUCCESS: swapped ${CORE_NAME} for ${CORE_INSTANCE}"
 		fi
@@ -324,7 +320,7 @@ case $subcommand in
 		;;
 	*)
 		shift
-		sub_${subcommand} $@
+		sub_"${subcommand}" "$@"
 		if [ $? = 127 ]; then
 			echo "Error: '$subcommand' is not a known subcommand." >&2
 			echo "       Run '$PROG_NAME --help' for a list of known subcommands." >&2
