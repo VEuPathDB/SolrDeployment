@@ -24,16 +24,16 @@ function remotecmd() {
 }
 
 function confirm() {
-    # call with a prompt string or use a default
-    read -r -p "${1:-Are you sure? [y/N]} " response
-    case "$response" in
-        [yY][eE][sS]|[yY])
-            true
-            ;;
-        *)
-            false
-            ;;
-    esac
+	# call with a prompt string or use a default
+	read -r -p "${1:-Are you sure? [y/N]} " response
+	case "$response" in
+		[yY][eE][sS] | [yY])
+			true
+			;;
+		*)
+			false
+			;;
+	esac
 }
 
 function rmsuffix() {
@@ -79,7 +79,7 @@ function solr_cores() {
 	SOLR_LIST=$(solr_query | jq -r '.status[].name')
 	if [ $# -eq 1 ]; then
 		CORE_NAME="$1"
-                echo "${SOLR_LIST}" | grep "$CORE_NAME"
+		echo "${SOLR_LIST}" | grep "$CORE_NAME"
 	else
 		echo "$SOLR_LIST"
 	fi
@@ -94,11 +94,10 @@ function solr_swap() {
 # takes filename or core instance dir format and returns the corename.  Works
 # for a single line, or multiple lines
 function extract_corename() {
-    while read -r line ; do
-        sed -E 's/[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}.*/\1/' <<< "$line"
-    done
+	while read -r line; do
+		sed -E 's/[a-z0-9]+_([a-z_]*)_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}.[0-9]{2}.*/\1/' <<<"$line"
+	done
 }
-
 
 # sub_command function definitions
 function sub_help() {
@@ -133,7 +132,7 @@ function sub_push() {
 		log "core not found in solr!"
 		exit 1
 	fi
- 
+
 	if [ ! -d "$INSTANCE_DIR" ]; then
 		log "ERROR: \"${CORE_NAME}\" does not exist!"
 		echo "Available cores:"
@@ -150,14 +149,13 @@ function sub_push() {
 
 # the cores function returns the currently loaded cores and their instance dirs
 function sub_cores() {
-    printf "Name\tDir\n"
-    for core in $(solr_cores)
-    do
-	RESPONSE=$(solr_status "$core")
-        name=$(jq -r ".status[ .status | keys[0] ].name" <<< "$RESPONSE" )
-        instanceDir=$(jq -r ".status[ .status | keys[0] ].instanceDir" <<< "$RESPONSE" )
-        printf "%s\t%s\n" "$name" "$instanceDir"
-    done
+	printf "Name\tDir\n"
+	for core in $(solr_cores); do
+		RESPONSE=$(solr_status "$core")
+		name=$(jq -r ".status[ .status | keys[0] ].name" <<<"$RESPONSE")
+		instanceDir=$(jq -r ".status[ .status | keys[0] ].instanceDir" <<<"$RESPONSE")
+		printf "%s\t%s\n" "$name" "$instanceDir"
+	done
 
 }
 
@@ -235,14 +233,14 @@ function sub_pull() {
 	mv "${DEST_DIR}"/core.properties "${DEST_DIR}"/core.properties.crepo
 
 	# Issue create call to solr to load core
-	solr_create "${LOCAL_CORE_NAME}" "${DEST_DIR}" && \
-	log "core ${LOCAL_CORE_NAME} created:" && \
-	solr_info "${LOCAL_CORE_NAME}" && \
+	solr_create "${LOCAL_CORE_NAME}" "${DEST_DIR}" &&
+		log "core ${LOCAL_CORE_NAME} created:" &&
+		solr_info "${LOCAL_CORE_NAME}" &&
 
-	# Optional swap with core just pulled down
-	SWAP_CORE_NAME=$(echo "${LOCAL_CORE_NAME}" | extract_corename )
+		# Optional swap with core just pulled down
+		SWAP_CORE_NAME=$(echo "${LOCAL_CORE_NAME}" | extract_corename)
 
-        # below is slightly confusing, as it prompts twice
+	# below is slightly confusing, as it prompts twice
 	if confirm "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? [Y/n]"; then
 		log "Running: $PROG_NAME swap \"${SWAP_CORE_NAME}\" \"${LOCAL_CORE_NAME}\""
 		sub_swap "${SWAP_CORE_NAME}" "${LOCAL_CORE_NAME}"
@@ -281,7 +279,7 @@ function sub_swap() {
 		echo "Available core names to swap \"latest\" from:"
 		solr_cores | extract_corename | sort | uniq
 		exit 1
-	elif ! grep -x "$CORE_INSTANCE" <<< "$CORE_LIST"; then
+	elif ! grep -x "$CORE_INSTANCE" <<<"$CORE_LIST"; then
 		log "Manual selection of core \"${CORE_INSTANCE}\" does not exist"
 		echo "Available cores to swap:"
 		solr_cores
@@ -308,7 +306,7 @@ function sub_swap() {
 
 # Create key dir/content if needed
 [ ! -d "$REPO_KEY_PATH" ] && mkdir -p -m 700 "$REPO_KEY_PATH"
-[ ! -s "$REPO_KEY_FILE" ] && echo "$REPO_KEY" | base64 -d > "$REPO_KEY_FILE"
+[ ! -s "$REPO_KEY_FILE" ] && echo "$REPO_KEY" | base64 -d >"$REPO_KEY_FILE"
 chmod 600 "$REPO_KEY_FILE"
 
 # Main routine
