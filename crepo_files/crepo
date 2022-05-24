@@ -254,7 +254,12 @@ function sub_swap() {
 	if [ "$1" == "latest" ]; then
 		if [ $# -eq 2 ]; then
 			CORE_NAME="$2"
-			CORE_LIST=$(solr_cores "${CORE_NAME}")
+
+                        # solr api query isn't explicitely ordered, but this
+                        # seems to work.  However, we want to exclude the core
+                        # name, otherwise the latest can be the same, resulting
+                        # in a "same swap" attempt
+                        CORE_LIST=$(solr_cores "${CORE_NAME}" | grep -vx "$CORE_NAME")
 			CORE_INSTANCE=$(echo "$CORE_LIST" | tail -n1)
 		else
 			log "Core name is required!"
