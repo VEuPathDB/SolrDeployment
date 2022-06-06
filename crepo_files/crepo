@@ -9,7 +9,7 @@
 PROG_NAME=$(basename "$0")
 REPO_KEY_PATH=/tmp/.ssh/
 REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
-REPO_REMOTE_PATH=${REPO_REMOTE_PATH:-/var/lib/crepo/cores}
+REPO_REMOTE_PATH=${REPO_REMOTE_PATH}
 
 # Generic function definitions
 function log() {
