@@ -10,6 +10,7 @@ PROG_NAME=$(basename "$0")
 REPO_KEY_PATH=/tmp/.ssh/
 REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
 REPO_REMOTE_PATH=${REPO_REMOTE_PATH}
+SWAP_CONFIRM=1
 
 # Generic function definitions
 function log() {
@@ -240,9 +241,10 @@ function sub_pull() {
 		# Optional swap with core just pulled down
 		SWAP_CORE_NAME=$(echo "${LOCAL_CORE_NAME}" | extract_corename)
 
-	# below is slightly confusing, as it prompts twice
 	if confirm "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? [y/N]"; then
 		log "Running: $PROG_NAME swap \"${SWAP_CORE_NAME}\" \"${LOCAL_CORE_NAME}\""
+		# Prevent double confirm by disabling sub_swap's prompt
+		SWAP_CONFIRM=0
 		sub_swap "${SWAP_CORE_NAME}" "${LOCAL_CORE_NAME}"
 	else
 		log "Auto-invoke swapping declined by user"
@@ -255,11 +257,11 @@ function sub_swap() {
 		if [ $# -eq 2 ]; then
 			CORE_NAME="$2"
 
-                        # solr api query isn't explicitely ordered, but this
-                        # seems to work.  However, we want to exclude the core
-                        # name, otherwise the latest can be the same, resulting
-                        # in a "same swap" attempt
-                        CORE_LIST=$(solr_cores "${CORE_NAME}" | grep -vx "$CORE_NAME")
+			# solr api query isn't explicitely ordered, but this
+			# seems to work.  However, we want to exclude the core
+			# name, otherwise the latest can be the same, resulting
+			# in a "same swap" attempt
+			CORE_LIST=$(solr_cores "${CORE_NAME}" | grep -vx "$CORE_NAME")
 			CORE_INSTANCE=$(echo "$CORE_LIST" | tail -n1)
 		else
 			log "Core name is required!"
@@ -293,9 +295,11 @@ function sub_swap() {
 
 	# Prompt user to verify selected core
 	if [ -n "${CORE_NAME}" ]; then
-		if ! confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [y/N]"; then
-			log "swap action aborted by user"
-			exit 1
+		if [ "$SWAP_CONFIRM" -eq 1 ]; then
+			if ! confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [y/N]"; then
+				log "swap action aborted by user"
+				exit 1
+			fi
 		fi
 
 		RESPONSE=$(solr_swap "${CORE_NAME}" "${CORE_INSTANCE}")
