@@ -209,7 +209,7 @@ function sub_pull() {
 
 	# Prompt user to verify autoselected core
 	if [ -n "${CORE_NAME}" ]; then
-		if ! confirm "Pull ${TAR_FILENAME}? [Y/n]"; then
+		if ! confirm "Pull ${TAR_FILENAME}? [y/N]"; then
 			log "pull action aborted by user"
 			exit 1
 		fi
@@ -241,7 +241,7 @@ function sub_pull() {
 		SWAP_CORE_NAME=$(echo "${LOCAL_CORE_NAME}" | extract_corename)
 
 	# below is slightly confusing, as it prompts twice
-	if confirm "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? [Y/n]"; then
+	if confirm "Auto-invoke swapping \"${SWAP_CORE_NAME}\" core with \"${LOCAL_CORE_NAME}\"? [y/N]"; then
 		log "Running: $PROG_NAME swap \"${SWAP_CORE_NAME}\" \"${LOCAL_CORE_NAME}\""
 		sub_swap "${SWAP_CORE_NAME}" "${LOCAL_CORE_NAME}"
 	else
@@ -293,7 +293,7 @@ function sub_swap() {
 
 	# Prompt user to verify selected core
 	if [ -n "${CORE_NAME}" ]; then
-		if ! confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [Y/n]"; then
+		if ! confirm "Swap \"${CORE_NAME}\" core with \"${CORE_INSTANCE}\"? [y/N]"; then
 			log "swap action aborted by user"
 			exit 1
 		fi
