@@ -77,4 +77,8 @@
        the User Comments Updater -->
   <field name="userCommentIds" type="pint" required="false" indexed="false" stored="true" multiValued="true"/>
   
+  <!-- An optional field needed for documents that have apollo comments. Contains a list of user comment IDs.  Used by
+       the Apollo Comments Updater -->
+  <field name="apolloCommentIds" type="string" required="false" indexed="false" stored="true" multiValued="true"/>
+      
 </fields>
