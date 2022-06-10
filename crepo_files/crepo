@@ -4,12 +4,14 @@
 # REPO_KEY: a base64 encoded private key used to access the core repository. Obtain with: base64 [privatekey] | tr -d '\n'
 # REPO_ENV: the environment of the container, used to create the name of the tarball. i.e., load, dev, qa, prod
 # REPO_HOST: the host of the repository. should include username, user@host style for ssh
+# REPO_REMOTE_PATH: the path to the repository directory on the remote host
 
 # Globals
 PROG_NAME=$(basename "$0")
 REPO_KEY_PATH=/tmp/.ssh/
 REPO_KEY_FILE=${REPO_KEY_PATH}/repo_key
 REPO_REMOTE_PATH=${REPO_REMOTE_PATH}
+REPO_REMOTE_PORT=${REPO_REMOTE_PORT:-22}
 SWAP_CONFIRM=1
 
 # Generic function definitions
@@ -21,6 +23,7 @@ function remotecmd() {
 	ssh -i $REPO_KEY_FILE \
 		-o "StrictHostKeyChecking No" \
 		-o "UserKnownHostsFile $REPO_KEY_PATH/known_hosts" \
+                -p "$REPO_REMOTE_PORT" \
 		"$REPO_HOST" "$@"
 }
 
