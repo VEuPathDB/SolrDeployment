@@ -67,11 +67,15 @@
 
   
   <!-- An optional field indicating the project this document is associated with, if any (eg, PlasmoDB).
-       Used for filtering by project.  Not needed for documents that have an organism field.  But is needed for
-       documents that are loaded per project, such as Pathways and Searches.  This is possibly temporary, and may
-       be retired when we move to UniDB -->
+       Used for filtering by project.  Not needed for documents that have an organism field, and should be excluded
+       for them (otherwise the portal will not see them).  It is needed for documents that are loaded per project, such as 
+       Pathways and Searches.  This is possibly temporary, and may be retired when we move to UniDB -->
   <field name="project" type="string" required="false" indexed="true" stored="false"/>
-
+    
+  <!-- An additional optional field indicating the project this document is associated with.  This is provided for applications other than
+       the Site Search Service (such as the Apollo Comment Updater) that need to know which project documents belong to, including 
+       documents (such as Genes) that cannot have the project field, for reasons described in that field's comment -->
+  <field name="projectAux" type="string" required="false" indexed="true" stored="false"/>
 
   <!-- An optional field needed for documents that have user comments. Contains a list of user comment IDs.  Used by
        the User Comments Updater -->
