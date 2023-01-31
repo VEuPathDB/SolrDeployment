@@ -50,9 +50,9 @@
     <copyField source="species" dest="species_category"/>
 
     <!-- These fields are non-tokenized copies to allow pivoting used in summarizing the markers -->
-    <field name="collection_protocols_category" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="collection_protocols_category" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <copyField source="collection_protocols" dest="collection_protocols_category"/>
-    <field name="protocols_category" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="protocols_category" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <copyField source="protocols" dest="protocols_category"/>
 
 
@@ -185,7 +185,7 @@
     <field name="projects" type="text_ws_na" indexed="true" stored="true" multiValued="true"/>
     <copyField source="projects" dest="text"/>
 
-    <field name="projects_category" type="string_na" indexed="true" stored="true" multiValued="true"/>
+    <field name="projects_category" type="string_na" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <copyField source="projects" dest="projects_category"/>
 
     <field name="insecticides_cvterms" type="text_ws_finer" indexed="true" stored="true" multiValued="true"/>
