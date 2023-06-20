@@ -909,6 +909,17 @@
     -->
   </searchComponent>
 
+  <!-- VEuPathDB : Type-ahead component. -->
+  <searchComponent name="suggest" class="solr.SuggestComponent">
+    <lst name="suggester">
+      <str name="name">typeAhead</str>
+      <str name="lookupImpl">FuzzyLookupFactory</str>
+      <str name="field">typeAheadText</str>
+      <str name="suggestAnalyzerFieldType">string</str>
+      <str name="buildOnStartup">false</str>
+    </lst>
+  </searchComponent>
+
   <!-- A request handler for demonstrating the spellcheck component.
 
        NOTE: This is purely as an example.  The whole purpose of the
