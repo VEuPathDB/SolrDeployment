@@ -912,15 +912,17 @@
   <!-- VEuPathDB : Type-ahead component. -->
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
-      <str name="name">typeAhead</str>
-      <str name="lookupImpl">FuzzyLookupFactory</str>
-      <str name="field">typeAheadText</str>
-      <str name="suggestAnalyzerFieldType">string</str>
-      <str name="buildOnStartup">false</str>
+      <str name="name">default</str>
+      <str name="lookupImpl">FreeTextLookupFactory</str>
+      <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+      <str name="field">autocomplete</str>
+      <str name="ngrams">3</str>
+      <str name="separator"> </str>
+      <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
     </lst>
   </searchComponent>
   <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
-    <lst>
+    <lst name="defaults">
       <str name="suggest">true</str>
       <str name="suggest.count">10</str>
     </lst>

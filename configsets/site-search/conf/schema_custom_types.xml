@@ -5,4 +5,10 @@
 <types>
   <fieldType name="documentType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="documentType"/>
   <fieldType name="batchType" class="solr.EnumFieldType" docValues="true" enumsConfig="enumsConfig.xml" enumName="batchType"/>
+  <fieldType name="autocomplete_text" class="solr.TextField" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="solr.StandardTokenizerFactory" />
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+  </fieldType>
 </types>

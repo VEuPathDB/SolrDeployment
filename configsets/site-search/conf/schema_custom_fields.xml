@@ -37,9 +37,9 @@
   <dynamicField name="MULTITEXT__*" type="text_general" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
 
   <!-- VEuPathDB : Type-ahead field and copies of values into the field -->
-  <field name="type-ahead" type="text_general" indexed="true" stored="true" multiValued="true" termVectors="true" />
-  <copyField source="TEXT__*" dest="type-ahead" />
-  <copyField source="MULTITEXT__*" dest="type-ahead" />
+  <field name="autocomplete" type="autocomplete_text" indexed="true" stored="true" multiValued="true" />
+  <copyField source="TEXT__*" dest="autocomplete" />
+  <copyField source="MULTITEXT__*" dest="autocomplete" />
 
   <!-- The (possibly) multi-valued primary key.  Required by the site search service for all searchable documents.
        It is used by the client to form an URL linking to a document when presented in search results.  The client must use
