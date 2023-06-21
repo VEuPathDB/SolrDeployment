@@ -916,9 +916,10 @@
       <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">autocomplete</str>
-      <str name="ngrams">3</str>
+      <str name="ngrams">5</str>
       <str name="separator"> </str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
+      <str name="buildOnCommit">true</str>
     </lst>
   </searchComponent>
   <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
