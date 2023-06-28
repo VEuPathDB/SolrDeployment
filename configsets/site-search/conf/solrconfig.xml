@@ -913,13 +913,13 @@
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
       <str name="name">default</str>
-      <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
       <str name="field">autocomplete</str>
-      <str name="ngrams">5</str>
+      <str name="buildOnCommit">true</str>
+      <str name="lookupImpl">FreeTextLookupFactory</str>
+      <str name="ngrams">2</str>
       <str name="separator"> </str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
-      <str name="buildOnCommit">true</str>
     </lst>
   </searchComponent>
   <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
