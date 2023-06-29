@@ -917,7 +917,7 @@
       <str name="field">autocomplete</str>
       <str name="buildOnCommit">true</str>
       <str name="lookupImpl">FreeTextLookupFactory</str>
-      <str name="ngrams">2</str>
+      <str name="ngrams">1</str>
       <str name="separator"> </str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
     </lst>
