@@ -44,6 +44,10 @@
   <copyField source="MULTITEXT__*" dest="autocomplete" />
   -->
 
+  <copyField source="TEXT__*" dest="autocomplete" />
+  <copyField source="MULTITEXT__*" dest="autocomplete" />
+
+
   <!-- The (possibly) multi-valued primary key.  Required by the site search service for all searchable documents.
        It is used by the client to form an URL linking to a document when presented in search results.  The client must use
        the document-type field, and its own custom logic, to know how to form a proper URL from the primaryKey -->
