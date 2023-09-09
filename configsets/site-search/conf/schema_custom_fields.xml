@@ -44,8 +44,6 @@
   <copyField source="MULTITEXT__*" dest="autocomplete" />
   -->
 
-  <copyField source="TEXT__*" dest="autocomplete" />
-  <copyField source="MULTITEXT__*" dest="autocomplete" />
 
 
   <!-- The (possibly) multi-valued primary key.  Required by the site search service for all searchable documents.
