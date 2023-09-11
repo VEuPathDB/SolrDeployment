@@ -910,7 +910,7 @@
   </searchComponent>
 
   <!-- VEuPathDB : Type-ahead component. -->
-  <searchComponent name="suggest" class="solr.SuggestComponent">
+  <!-- <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
       <str name="name">default</str>
       <str name="dictionaryImpl">DocumentDictionaryFactory</str>
@@ -930,7 +930,7 @@
     <arr name="components">
       <str>suggest</str>
     </arr>
-  </requestHandler>
+  </requestHandler> -->
 
   <!-- A request handler for demonstrating the spellcheck component.
 
