@@ -11,4 +11,4 @@ build:
 
 .PHONY: run
 run:
-	docker run -it --rm -p "8983:8983" veupathdb/solr:latest
+	docker run -it --rm -p "8983:8983" --env=SOLR_HEAP=5G veupathdb/solr:latest
