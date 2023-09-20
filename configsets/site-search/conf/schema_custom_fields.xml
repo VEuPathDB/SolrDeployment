@@ -39,7 +39,6 @@
   <!-- VEuPathDB : Type-ahead field and copies of values into the field -->
   <field name="autocomplete" type="autocomplete_text" indexed="true" stored="true" multiValued="true" />
 
-  <!-- disable autocomplete till we figure out why it takes so long to index -->
   <copyField source="TEXT__*" dest="autocomplete" />
   <copyField source="MULTITEXT__*" dest="autocomplete" />
 
