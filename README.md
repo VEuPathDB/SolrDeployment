@@ -20,4 +20,3 @@ config, and can be used as an example for production.  There are commented out
 commands to allow you to select which core you'd like to create when the
 container starts.
 
-
