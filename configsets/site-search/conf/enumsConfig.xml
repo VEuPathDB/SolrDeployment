@@ -20,6 +20,7 @@
     <value>est</value>
     <value>gene</value>
     <value>dataset</value>
+    <value>community-dataset</value>
     <value>compound</value>
     <value>search</value>
     <value>public-strategy</value>
@@ -37,6 +38,7 @@
     <value>popset-isolate</value>
     <value>compound</value>
     <value>jekyll</value>
+    <value>community-datasets</value>
     <value>public-strategy</value>
     <value>wdkmeta</value>  <!-- wdk searches, so far -->
     <value>dataset-presenter</value>
