@@ -3,10 +3,12 @@
 @Library('pipelib')
 import org.veupathdb.lib.Builder
 
-node('centos8') {
+node('podbuild') {
 
   def builder = new Builder(this)
 
   builder.gitClone()
-  builder.buildContainers([[name: 'solr']])
+  builder.buildContainers([
+    [name: 'solr', publishBranches: true]
+  ])
 }
