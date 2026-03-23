@@ -914,6 +914,7 @@
       <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="ngrams">1</str>
       <str name="separator"> </str>
+      <str name="storeDir">suggester_index</str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
     </lst>
   </searchComponent>
