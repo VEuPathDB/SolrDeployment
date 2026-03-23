@@ -809,6 +809,7 @@
        http://wiki.apache.org/solr/ExtractingRequestHandler
 
     -->
+  <!--
   <requestHandler name="/update/extract"
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
@@ -817,6 +818,7 @@
       <str name="fmap.content">_text_</str>
     </lst>
   </requestHandler>
+  -->
 
   <!-- Search Components
 
