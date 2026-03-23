@@ -1,4 +1,4 @@
-FROM solr:8.2
+FROM docker.io/solr:10.0
 
 COPY configsets/ /opt/solr/server/solr/configsets/
 
