@@ -1,6 +1,6 @@
 FROM docker.io/solr:10.0
 
-COPY configsets/ /opt/solr/server/solr/configsets/
+COPY configsets/site-search/ /opt/solr/server/solr/configsets/site-search/
 
 USER root
 # we want jq for api parsing
