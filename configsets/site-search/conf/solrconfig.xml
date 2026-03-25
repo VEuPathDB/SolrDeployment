@@ -913,11 +913,13 @@
       <str name="buildOnCommit">false</str>
       <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="ngrams">1</str>
-      <str name="separator"> </str>
+      <!-- Setting the separator to space causes multiple words being collapsed into one which causes issues with autocomplete -->
+      <!-- <str name="separator"> </str>-->
       <str name="storeDir">suggester_index</str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
     </lst>
   </searchComponent>
+
   <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="suggest">true</str>
