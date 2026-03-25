@@ -33,6 +33,10 @@
        meta document. See SiteSearchData/Model/data/nonWdkDocumentFields.json (WDK field info is generated automatically by the
        loaders) -->
 
+  <!-- text fields that are excluded from autocompete -->
+  <dynamicField name="TEXT_NO_AC__*" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  <dynamicField name="MULTITEXT_NO_AC__*" type="text_general" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
+
   <dynamicField name="TEXT__*" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
   <dynamicField name="MULTITEXT__*" type="text_general" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
 
