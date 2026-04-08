@@ -33,8 +33,8 @@
        meta document. See SiteSearchData/Model/data/nonWdkDocumentFields.json (WDK field info is generated automatically by the
        loaders) -->
 
-  <dynamicField name="TEXT__*" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
-  <dynamicField name="MULTITEXT__*" type="text_general" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  <dynamicField name="TEXT__*" type="text_general_hyphen" indexed="true" stored="true" storeOffsetsWithPositions="true" termVectors="true"/>
+  <dynamicField name="MULTITEXT__*" type="text_general_hyphen" indexed="true" stored="true" multiValued="true" storeOffsetsWithPositions="true" termVectors="true"/>
 
   <!-- VEuPathDB : Type-ahead field -->
   <field name="autocomplete" type="autocomplete_text" indexed="true" stored="true" multiValued="true" />

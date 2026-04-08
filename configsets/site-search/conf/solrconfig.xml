@@ -908,15 +908,21 @@
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
       <str name="name">default</str>
-      <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+<!--      <str name="dictionaryImpl">DocumentDictionaryFactory</str> -->
+      <str name="dictionaryImpl">HighFrequencyDictionaryFactory</str>
       <str name="field">autocomplete</str>
       <str name="buildOnCommit">false</str>
+      <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
+<!--      <str name="contexts">project</str> -->
+      <str name="highlight">false</str>
+      <str name="minPrefixChars">0</str>
+      <str name="suggestAnalyzerFieldType">autocomplete_text</str>
+      <!--
       <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="ngrams">1</str>
-      <!-- Setting the separator to space causes multiple words being collapsed into one which causes issues with autocomplete -->
-      <!-- <str name="separator"> </str>-->
       <str name="storeDir">suggester_index</str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
+      -->
     </lst>
   </searchComponent>
 
