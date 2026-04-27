@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>8.2.0</luceneMatchVersion>
+  <luceneMatchVersion>10.3</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -72,18 +72,18 @@
        The examples below can be used to load some solr-contribs along
        with their external dependencies.
     -->
-  <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-cell-\d.*\.jar" />
+<!--  <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />-->
+<!--  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-cell-\d.*\.jar" />-->
 
-  <lib dir="${solr.install.dir:../../../..}/contrib/clustering/lib/" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-clustering-\d.*\.jar" />
+<!--  <lib dir="${solr.install.dir:../../../..}/contrib/clustering/lib/" regex=".*\.jar" />-->
+<!--  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-clustering-\d.*\.jar" />-->
 
-  <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />
+<!--  <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />-->
+<!--  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />-->
 
-  <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
-  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-ltr-\d.*\.jar" />
+<!--  <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />-->
+<!--  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />-->
+<!--  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-ltr-\d.*\.jar" />-->
 
   <!-- an exact 'path' can be used instead of a 'dir' to specify a
        specific jar file.  This will cause a serious error to be logged
@@ -268,7 +268,7 @@
 
        For more details see http://wiki.apache.org/solr/SolrJmx
     -->
-  <jmx />
+<!--  <jmx />-->
   <!-- If you want to connect to a particular server, specify the
        agentId
     -->
@@ -423,7 +423,7 @@
                       to occupy. Note that when this option is specified, the size
                       and initialSize parameters are ignored.
       -->
-    <filterCache class="solr.FastLRUCache"
+    <filterCache class="solr.CaffeineCache"
                  size="512"
                  initialSize="512"
                  autowarmCount="0"/>
@@ -436,7 +436,7 @@
             maxRamMB - the maximum amount of RAM (in MB) that this cache is allowed
                        to occupy
       -->
-    <queryResultCache class="solr.LRUCache"
+    <queryResultCache class="solr.CaffeineCache"
                       size="512"
                       initialSize="512"
                       autowarmCount="0"/>
@@ -447,14 +447,14 @@
          document).  Since Lucene internal document ids are transient,
          this cache will not be autowarmed.
       -->
-    <documentCache class="solr.LRUCache"
+    <documentCache class="solr.CaffeineCache"
                    size="512"
                    initialSize="512"
                    autowarmCount="0"/>
 
     <!-- custom cache currently used by block join -->
     <cache name="perSegFilter"
-           class="solr.search.LRUCache"
+           class="solr.search.CaffeineCache"
            size="10"
            initialSize="0"
            autowarmCount="10"
@@ -788,11 +788,15 @@
        (SearchHandler) can be registered multiple times with different
        names (and different init parameters)
     -->
+  <!-- This is disabled as it's not used by sitesearch. If we need it back we can enable by taking out velocity (or
+    adding it back as a dependency -->
+  <!--
   <requestHandler name="/browse" class="solr.SearchHandler" useParams="query,facets,velocity,browse">
     <lst name="defaults">
       <str name="echoParams">explicit</str>
     </lst>
   </requestHandler>
+  -->
 
   <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
     <lst name="defaults">
@@ -805,6 +809,7 @@
        http://wiki.apache.org/solr/ExtractingRequestHandler
 
     -->
+  <!--
   <requestHandler name="/update/extract"
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
@@ -813,6 +818,7 @@
       <str name="fmap.content">_text_</str>
     </lst>
   </requestHandler>
+  -->
 
   <!-- Search Components
 
@@ -902,15 +908,24 @@
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
       <str name="name">default</str>
-      <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+<!--      <str name="dictionaryImpl">DocumentDictionaryFactory</str> -->
+      <str name="dictionaryImpl">HighFrequencyDictionaryFactory</str>
       <str name="field">autocomplete</str>
       <str name="buildOnCommit">false</str>
+      <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
+<!--      <str name="contexts">project</str> -->
+      <str name="highlight">false</str>
+      <str name="minPrefixChars">0</str>
+      <str name="suggestAnalyzerFieldType">autocomplete_text</str>
+      <!--
       <str name="lookupImpl">FreeTextLookupFactory</str>
       <str name="ngrams">1</str>
-      <str name="separator"> </str>
+      <str name="storeDir">suggester_index</str>
       <str name="suggestFreeTextAnalyzerFieldType">text_general</str>
+      -->
     </lst>
   </searchComponent>
+
   <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="suggest">true</str>
@@ -1284,19 +1299,23 @@
   <!--
      Custom response writers can be declared as needed...
     -->
+  <!--
   <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy">
     <str name="template.base.dir">${velocity.template.base.dir:}</str>
     <str name="solr.resource.loader.enabled">${velocity.solr.resource.loader.enabled:true}</str>
     <str name="params.resource.loader.enabled">${velocity.params.resource.loader.enabled:false}</str>
   </queryResponseWriter>
+  -->
 
   <!-- XSLT response writer transforms the XML output by any xslt file found
        in Solr's conf/xslt directory.  Changes to xslt files are checked for
        every xsltCacheLifetimeSeconds.
     -->
+  <!--
   <queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
     <int name="xsltCacheLifetimeSeconds">5</int>
   </queryResponseWriter>
+  -->
 
   <!-- Query Parsers
 
